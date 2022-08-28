@@ -26,5 +26,7 @@ extern crate libz_sys;
 extern crate lz4_sys;
 #[cfg(feature = "zstd")]
 extern crate zstd_sys;
+#[cfg(all(feature = "io-uring", target_os = "linux"))]
+extern crate uring_sys;
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
