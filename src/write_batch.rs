@@ -258,6 +258,11 @@ impl<const TRANSACTION: bool> WriteBatchWithTransaction<TRANSACTION> {
                 values_lens.as_ptr(),
             );
         }
+        Vec::leak(items);
+        Vec::leak(keys_ptrs);
+        Vec::leak(keys_lens);
+        Vec::leak(values_ptrs);
+        Vec::leak(values_lens);
     }
 
     /// Removes the database entry for key. Does nothing if the key was not found.
