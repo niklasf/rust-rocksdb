@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use crate::{ffi, AsColumnFamilyRef};
-use libc::{c_char, c_void, size_t};
+use libc::{c_char, c_int, c_void, size_t};
 use std::slice;
 
 /// A type alias to keep compatibility. See [`WriteBatchWithTransaction`] for details
@@ -224,6 +224,38 @@ impl<const TRANSACTION: bool> WriteBatchWithTransaction<TRANSACTION> {
                 key.len() as size_t,
                 value.as_ptr() as *const c_char,
                 value.len() as size_t,
+            );
+        }
+    }
+
+    pub fn mergev_cf<K, V, I>(&mut self, cf: &impl AsColumnFamilyRef, items: I)
+    where
+        K: AsRef<[u8]>,
+        V: AsRef<[u8]>,
+        I: IntoIterator<Item = (K, V)>,
+    {
+        let items: Vec<(Box<[u8]>, Box<[u8]>)> = items
+            .into_iter()
+            .map(|(k, v)| (Box::from(k.as_ref()), Box::from(v.as_ref())))
+            .collect();
+        let (keys_ptrs, keys_lens): (Vec<_>, Vec<_>) = items
+            .iter()
+            .map(|(k, _)| (k.as_ptr() as *const c_char, k.len()))
+            .unzip();
+        let (values_ptrs, values_lens): (Vec<_>, Vec<_>) = items
+            .iter()
+            .map(|(_, v)| (v.as_ptr() as *const c_char, v.len()))
+            .unzip();
+        unsafe {
+            ffi::rocksdb_writebatch_mergev_cf(
+                self.inner,
+                cf.inner(),
+                keys_ptrs.len() as c_int,
+                keys_ptrs.as_ptr(),
+                keys_lens.as_ptr(),
+                values_ptrs.len() as c_int,
+                values_ptrs.as_ptr(),
+                values_lens.as_ptr(),
             );
         }
     }
