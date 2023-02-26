@@ -21,15 +21,15 @@ static const std::string rocksdb_build_date = "rocksdb_build_date:2023-02-26 11:
 static const std::string rocksdb_build_date = "rocksdb_build_date:2023-02-26 11:20:39";
 #endif
 
-#ifndef ROCKSDB_LITE
 extern "C" {
+
+bool RocksDbIOUringEnable() {
+  return true;
+}
 
 } // extern "C"
 
-std::unordered_map<std::string, ROCKSDB_NAMESPACE::RegistrarFunc> ROCKSDB_NAMESPACE::ObjectRegistry::builtins_ = {
-
-};
-#endif //ROCKSDB_LITE
+std::unordered_map<std::string, ROCKSDB_NAMESPACE::RegistrarFunc> ROCKSDB_NAMESPACE::ObjectRegistry::builtins_ = {};
 
 namespace ROCKSDB_NAMESPACE {
 static void AddProperty(std::unordered_map<std::string, std::string> *props, const std::string& name) {
