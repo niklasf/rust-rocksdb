@@ -65,6 +65,12 @@ impl Cache {
         }
     }
 
+    pub fn new_hyper_clock_cache(capacity: size_t, estimated_entry_charge: size_t) -> Cache {
+        let inner =
+            unsafe { ffi::rocksdb_cache_create_hyper_clock(capacity, estimated_entry_charge) };
+        Cache(Arc::new(CacheWrapper { inner }))
+    }
+
     /// Returns the Cache memory usage
     pub fn get_usage(&self) -> usize {
         unsafe { ffi::rocksdb_cache_get_usage(self.0.inner) }
