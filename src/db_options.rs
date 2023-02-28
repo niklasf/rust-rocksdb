@@ -55,7 +55,7 @@ impl Drop for CacheWrapper {
 pub struct Cache(pub(crate) Arc<CacheWrapper>);
 
 impl Cache {
-    /// Create a lru cache with capacity
+    /// Creates an LRU cache with the given capacity in bytes.
     pub fn new_lru_cache(capacity: size_t) -> Result<Cache, Error> {
         let cache = new_cache(capacity);
         if cache.is_null() {
@@ -65,23 +65,35 @@ impl Cache {
         }
     }
 
+    /// Creates a HyperClockCache with the given capacity in bytes.
     pub fn new_hyper_clock_cache(capacity: size_t, estimated_entry_charge: size_t) -> Cache {
         let inner =
             unsafe { ffi::rocksdb_cache_create_hyper_clock(capacity, estimated_entry_charge) };
         Cache(Arc::new(CacheWrapper { inner }))
     }
 
-    /// Returns the Cache memory usage
+    /// Returns the memory usage in bytes.
     pub fn get_usage(&self) -> usize {
         unsafe { ffi::rocksdb_cache_get_usage(self.0.inner) }
     }
 
-    /// Returns pinned memory usage
+    /// Returns the pinned memory usage in bytes.
     pub fn get_pinned_usage(&self) -> usize {
         unsafe { ffi::rocksdb_cache_get_pinned_usage(self.0.inner) }
     }
 
-    /// Sets cache capacity
+    /// Returns the number of entries currently tracked in the table.
+    pub fn get_occupancy_count(&self) -> usize {
+        unsafe { ffi::rocksdb_cache_get_occupancy_count(self.0.inner) }
+    }
+
+    /// Returns the number of ways the hash function is divided for addressing
+    /// entries.
+    pub fn get_table_address_count(&self) -> usize {
+        unsafe { ffi::rocksdb_cache_get_table_address_count(self.0.inner) }
+    }
+
+    /// Sets cache capacity in bytes.
     pub fn set_capacity(&mut self, capacity: size_t) {
         unsafe {
             ffi::rocksdb_cache_set_capacity(self.0.inner, capacity);
