@@ -4052,6 +4052,24 @@ impl LruCacheOptions {
             ffi::rocksdb_lru_cache_options_set_num_shard_bits(self.inner, val);
         }
     }
+
+    /// Sets the fraction of the cache reserved for high-priority entries (such
+    /// as index and filter blocks).
+    ///
+    /// Default: 0.5
+    ///
+    /// # Panics
+    ///
+    /// Panics if `ratio` is not in `0.0..=1.0`.
+    pub fn set_high_pri_pool_ratio(&mut self, ratio: c_double) {
+        assert!(
+            (0.0..=1.0).contains(&ratio),
+            "high_pri_pool_ratio must be in 0.0..=1.0"
+        );
+        unsafe {
+            ffi::rocksdb_lru_cache_options_set_high_pri_pool_ratio(self.inner, ratio);
+        }
+    }
 }
 
 impl Default for LruCacheOptions {
