@@ -1450,6 +1450,32 @@ impl Options {
         }
     }
 
+    /// Sets the maximum allowable compressed bytes per 1KB of input, which
+    /// essentially specifies a minimum acceptable compression ratio of
+    /// `1024.0 / value`. A block is stored uncompressed if it does not
+    /// achieve this ratio.
+    ///
+    /// Valid values are from 1 to 1024. For example, for a minimum ratio of
+    /// 1.5:1, set to 683.
+    ///
+    /// Default: 896 (abandon compression of a block if compressed by less
+    /// than 12.5%)
+    ///
+    /// # Panics
+    ///
+    /// Panics if `value` is not in `1..=1024`.
+    pub fn set_compression_options_max_compressed_bytes_per_kb(&mut self, value: c_int) {
+        assert!(
+            (1..=1024).contains(&value),
+            "max_compressed_bytes_per_kb must be in 1..=1024"
+        );
+        unsafe {
+            ffi::rocksdb_options_set_compression_options_max_compressed_bytes_per_kb(
+                self.inner, value,
+            );
+        }
+    }
+
     /// Sets the compression algorithm that will be used for compressing WAL.
     ///
     /// At present, only ZSTD compression is supported!
