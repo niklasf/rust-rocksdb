@@ -807,6 +807,18 @@ impl BlockBasedOptions {
         }
     }
 
+    /// Store keys and values separately. Keys are stored at the beginning
+    /// of the block, followed by values at the end. Can improve read
+    /// performance and compression at the cost of a varint (~1 bit per key
+    /// by default).
+    ///
+    /// Default: false
+    pub fn set_separate_key_value_in_data_block(&mut self, v: bool) {
+        unsafe {
+            ffi::rocksdb_block_based_options_set_separate_key_value_in_data_block(self.inner, c_uchar::from(v));
+        }
+    }
+
     /// Same as block_restart_interval but used for the index block.
     /// If you don't plan to run RocksDB before version 5.16 and you are
     /// using `index_block_restart_interval` > 1, you should
